@@ -146,13 +146,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.warn("Could not read config.json, running in default fallback demo mode", error);
     // Use fallback local state config
     AppState.config = {
-      googleDriveApiKey: "",
+      googleDriveApiKey: "AIzaSyB0jKK9RjwLfSoPDr3_VdbwBUeQdbbf1wY",
       demoMode: true,
       courses: {
         "ITCS1313": { "folderId": "1a_mock_discrete_math_folder_id", "tips": "الرياضيات المنفصلة هي لغة التفكير المنطقي للحاسوب. ركز جداً على المنطق ونظرية المجموعات." },
         "ITCS1312": { "folderId": "1d_mock_fundamentals_programming_folder_id", "tips": "أساسيات البرمجة تحتاج تطبيقاً عملياً مستمراً. اكتب الكود بيدك ولا تنسى حل المسائل البرمجية." },
         "MATH1411": { "folderId": "1e_mock_calculus_1_folder_id", "tips": "تفاضل وتكامل 1 هو حجر الأساس للرياضيات الهندسية. ركز على النهايات والمشتقات والتكاملات." },
-        "PHYS1301": { "folderId": "1f_mock_physics_eng_folder_id", "tips": "الفيزياء الهندسية تركز على الميكانيكا والحركة. يوصى بمشاهدة شرح قنوات يوتيوب وحل مسائل الكتاب." }
+        "PHYS1301": { "folderId": "1f_mock_physics_eng_folder_id", "tips": "الفيزياء الهندسية تركز على الميكانيكا والحركة. يوصى بمشاهدة شرح قنوات يوتيوب وحل مسائل الكتاب." },
+        "ENGS1303": { "folderId": "", "tips": "مادة دوائر إلكترونية أساسية لفهم الإلكترونيات الرقمية والتماثلية. ركز على الدوائر الأساسية والعمل على الرسوم والتطبيقات العملية." },
+        "ENGS2301": { "folderId": "", "tips": "رياضيات للهندسة تربط المفاهيم الرياضية مع التطبيقات الهندسية. راجع المتجهات، المعادلات التفاضلية الأساسية والتمثيلات الرياضية." },
+        "ENGS2303": { "folderId": "", "tips": "لغة برمجة متقدمة تعزز قدرات البرمجة باستخدام مفاهيم OOP وJava/C++. حاول حل تمارين تطبيقية باستمرار." },
+        "ENGS2305": { "folderId": "", "tips": "تنظيم وعمارة الحاسوب تعطيك أساساً قوياً في بنية المعالج والذاكرة. ركز على السجلات، التعليمات، والتعامل مع الأوامر." },
+        "ITCS2321": { "folderId": "", "tips": "تراكيب البيانات والخوارزميات ضرورية لبناء حل فعّال للمشكلات. راجع الجداول، المكدسات، قوائم الانتظار والشجرات." },
+        "HIST1201": { "folderId": "", "tips": "المادة تتطلب فهماً للواقع التاريخي الفلسطيني. راجع المراجع الأساسية وحاول تلخيص النقاط المهمة." }
       }
     };
   }
@@ -998,8 +1004,15 @@ function loadCourseInExplorer(courseCode) {
   }
 
   // Load root folder
-  AppState.currentFolderId = courseConfig.folderId;
-  fetchFolderItems(AppState.currentFolderId, courseDetails.course.name);
+  if (!courseConfig || !courseConfig.folderId || !String(courseConfig.folderId).trim()) {
+    AppState.currentFolderId = null;
+    AppState.availableCourseFiles = [];
+    document.getElementById("demoAlertBanner").style.display = "none";
+    showEmptyState("لا يوجد مجلد مرتبط بهذه المادة بعد", "يمكنك ربط مجلد Google Drive لهذه المادة من ملف config.json ثم ستظهر الملفات هنا.");
+  } else {
+    AppState.currentFolderId = String(courseConfig.folderId).trim();
+    fetchFolderItems(AppState.currentFolderId, courseDetails.course.name);
+  }
   
   // Update view hash and navigate
   AppState.activeView = "explorer";
@@ -1456,13 +1469,13 @@ function showLoadingInExplorer() {
   `;
 }
 
-function showEmptyState() {
+function showEmptyState(title = "المجلد فارغ", subtitle = "لا توجد ملفات متوفرة في هذا القسم حالياً.") {
   const listContainer = document.getElementById("explorerItemsList");
   listContainer.innerHTML = `
     <div class="empty-state">
       <i class="fa-solid fa-folder-open state-icon-huge"></i>
-      <h4 class="state-title">المجلد فارغ</h4>
-      <p class="state-subtitle">لا توجد ملفات متوفرة في هذا القسم حالياً.</p>
+      <h4 class="state-title">${title}</h4>
+      <p class="state-subtitle">${subtitle}</p>
     </div>
   `;
 }
